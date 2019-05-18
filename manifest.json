@@ -1,0 +1,38 @@
+{
+"manifest_version": 2,
+"name": "NewsViews",
+"version": "1.0",
+
+"description": "Adds a red border to all webpages matching mozilla.org.",
+
+"icons": {
+  "48": "icons/border-48.png"
+},
+"browser_action": {
+  "default_popup": "credentials.html"
+},
+"background": {
+  "page": "background.html"
+},
+"content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
+"content_scripts": [
+  {
+    "matches": ["*://*.yahoo.com/*"],
+    "js": ["firebase.js","./js/whatever.js"]
+    
+  }
+],
+"permissions": [
+  "identity"
+],
+"oauth2": {
+  "client_id": "819076290403-7npm57jstre9bqdrcsgbhae40sf8u57f.apps.googleusercontent.com",
+  "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile"
+  ]
+},
+"key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArpIJBYo9QoLQUD0R3jI1dMEsIXJstWa18gN3oItGhzxkC2hx/z2uA4HH/1rtOJapuggLfxV4b+MlZ+w1mE0bjbLfUoVDRgVa1f7rUR660hjOJiwAaAlPBUM6J2xRH7QKCYpcMIUCIv+gzrBPVPGaA2jbX6+yI78Vj01TyUJv4sbL03/89UeNS2HNPPtBH8GYbGOutOYE7J2iQfTCi4J/g9v+qc6nQXa1I5Mkr9SJvjQpJqsZ0VvAN0kFEU7egrqbs+vHkpFIJ/tv+o7wvQfqPOg+3SMeH1KLX0mVIbwAfQs/f/RS+W7fn/WkAZ9YN2DexhRW/ODUIjq/mRm73D+4fwIDAQAB"
+
+
+}
