@@ -1,7 +1,7 @@
 // TODO(DEVELOPER): Change the values below using values from the initialization snippet: Firebase Console > Overview > Add Firebase to your web app.
 // Initialize Firebase
-var config = {
-  apiKey: "AIzaSyC3YCd9P7P-tOlWnBkmEEQX5OrylTwAY1g",
+ var config = {
+  apiKey: "AIzaSyBx9o8T9Sh_ckfoV_mZmzB7j5l-5G_J_hU",
   authDomain: "nvn2-f261a.firebaseapp.com",
   databaseURL: "https://nvn2-f261a.firebaseio.com",
   projectId: "nvn2-f261a",
@@ -10,7 +10,7 @@ var config = {
   appId: "1:819076290403:web:c4954e15930e4caf"
   };
   firebase.initializeApp(config);
-  
+   
   /**
    * initApp handles setting up the Firebase context and registering
    * callbacks for the auth status.
@@ -40,7 +40,7 @@ var config = {
         var uid = user.uid;
         var providerData = user.providerData;
         // [START_EXCLUDE]
-        document.getElementsByClassName('login').style.hide()
+        document.getElementsByClassName('login').textContent = 'Sign out'
         document.getElementById('quickstart-button').textContent = 'Sign out';
         document.getElementById('quickstart-sign-in-status').textContent = 'Signed in';
         document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  ');
@@ -105,15 +105,32 @@ var config = {
   }
 
   function emailPassLogin(email, password){
-    firebase.auth().signInWithEmailAndPassword(email, password)
-    .then(response => alert('Sign-In Successful'))
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+  .then(function() {
+    // Existing and future Auth states are now persisted in the current
+    // session only. Closing the window would clear any existing state even
+    // if a user forgets to sign out.
+    // ...
+    // New sign-in will be persisted with session persistence.
+    return firebase.auth().signInWithEmailAndPassword(email, password)
+    .then(response => {
+      alert('Sign-In Successful')
+      chrome.runtime.sendMessage({type: 'updateValue', opts: request.opts}, (response) => {
+        if(response == 'success') {
+          // implement success action here
+          alert('sent to app state')
+        }
+      });
+    })
     .catch(function(error) {
       alert(error)
       // Handle Errors here.
       var errorCode = error.code;
       var errorMessage = error.message;
       // ...
-    });
+    });;
+  })
+    
   }
   
   window.onload = function() {
