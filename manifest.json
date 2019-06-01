@@ -19,7 +19,7 @@
 "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
 "content_scripts": [
   {
-    "matches": ["*://*.yahoo.com/*"],
+    "matches": ["*://*/*"],
     "js": ["firebase.js","./js/whatever.js"]
     
   }

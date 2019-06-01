@@ -18,31 +18,24 @@ limitations under the License.
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Sign In in Chrome Extensions Example</title>
 
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="sign-up.css">
 
     <!-- ***************************************************************************************
        * TODO(DEVELOPER): Make sure you are importing the latest version of the Firebase JS. *
        *************************************************************************************** -->
     <script src="https://www.gstatic.com/firebasejs/5.11.1/firebase.js"></script>
-    <script src="credentials.js"></script>
+    <script src="sign-up.js"></script>
 </head>
 
 <body>
-    <h3>Firebase Authentication</h3>
+    <h3 class='MySource'>MySource</h3>
 
     <div class="login-user-details-container">
-        <input id="username" class="login" type='text' placeholder="Username" label="Username">
-        <input id="password" class="login" type='password' placeholder="Password" label="Password">
-        <button id="quickstart-button">Sign-in</button>
-        <p>
-            Firebase sign-in status: 
-            <span id="quickstart-sign-in-status">Unknown</span>
-            <div>Firebase auth 
-                <code>currentUser</code> object value:</div>
-            <pre>
-                <code id="quickstart-account-details">null</code>
-            </pre>
-        </p>
+        <input id="First Name" class="field" type='text' placeholder="First Name" label="First Name">
+        <input id="Last Name" class="field" type='text' placeholder="Last Name" label="Last Name">
+        <input id="Email" class="field" type="text" placeholder="Email" label="Email">
+        <input id="Password" class="field" type="password" placeholder="Password" label='Password'>
+        <input id="Affiliation" class="field" type="text" placeholder="Affiliation" label='Affiliation'>
         <button id="Sign-Up">Sign-Up</button>
 
     </div>

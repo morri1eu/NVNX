@@ -1,0 +1,13 @@
+body{
+   width: 200px;
+   height:  150px;
+}
+.MySource{
+    height: 30px;
+    width: 100%;
+    text-align: center;
+}
+
+.field{
+    align-self: center;
+}

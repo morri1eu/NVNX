@@ -29,6 +29,7 @@
     // Listen for auth state changes.
     // [START authstatelistener]
     console.log('inside credentials initApp')
+
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         // User is signed in.
@@ -46,6 +47,14 @@
         document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  ');
         // [END_EXCLUDE]
       } else {
+        chrome.runtime.sendMessage({type: 'unauthorizedUser', opts: null }, (response) => {
+          console.log('before send ')
+          console.log(response)
+          if(response == 'success') {
+            console.log(response)
+            }
+          }
+        )
         // Let's try to get a Google auth token programmatically.
         // [START_EXCLUDE]
         document.getElementById('quickstart-button').textContent = 'Sign-in';
@@ -54,6 +63,9 @@
         // [END_EXCLUDE]
       }
       document.getElementById('quickstart-button').disabled = false;
+      document.getElementById('Sign-Up').addEventListener('click', function(){
+        window.location= './sign-up.html'
+      })
     });
     // [END authstatelistener]
   
@@ -105,6 +117,9 @@
   }
 
   function emailPassLogin(email, password){
+    if (firebase.auth().currentUser) {
+      return firebase.auth().signOut();
+    }
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
   .then(function() {
     // Existing and future Auth states are now persisted in the current
