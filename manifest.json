@@ -25,7 +25,8 @@
   }
 ],
 "permissions": [
-  "identity"
+  "identity",
+  "storage"
 ],
 "oauth2": {
   "client_id": "819076290403-7npm57jstre9bqdrcsgbhae40sf8u57f.apps.googleusercontent.com",

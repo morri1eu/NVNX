@@ -15,6 +15,12 @@ var config = {
   let userID
   function initApp() {
     // Listen for auth state changes.
+    let firebaseAuth = JSON.parse(window.localStorage.getItem('firebaseAuth'))
+    console.log(firebaseAuth)
+    if (firebaseAuth){
+      userID= firebaseAuth.uid
+      console.log('Local user state detected from the Background script of the Chrome Extension:', user);
+    }
     firebase.auth().onAuthStateChanged(function(user) {
       if(user){
         userID= user.uid
@@ -117,6 +123,10 @@ chrome.runtime.onMessage.addListener(async(msg, sender, response) => {
           response('success');
           }
           break;
+        case 'keywordsDetected':
+          console.log(msg.opts)
+          chrome.storage.local.set({keywords: msg.opts})
+          response('success')
         default:
           response('unknown request');
           break;
@@ -148,6 +158,13 @@ chrome.runtime.onMessage.addListener(async(msg, sender, response) => {
         break;
       case 'unauthorizedUser':
         window.open('https://2z9kl.codesandbox.io/')
+      case 'login':
+        console.log(msg)
+        emailPassLogin(msg.opts.username, msg.opts.auth)
+        response('login received')
+        break;
+      case 'keywordsDetected':
+        response('success')
       default:
         response('unknown request Background');
         break;
@@ -208,4 +225,25 @@ function getTweets(authorName){
     }
     xmlHttp.open("GET", theUrl, true); // true for asynchronous 
     xmlHttp.send(null);
+}
+
+
+function emailPassLogin(email, password){
+  firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+.then(function() {
+  // Existing and future Auth states are now persisted in the current
+  // session only. Closing the window would clear any existing state even
+  // if a user forgets to sign out.
+  // ...
+  // New sign-in will be persisted with session persistence.
+  return firebase.auth().signInWithEmailAndPassword(email, password)
+  })
+  .catch(function(error) {
+    alert(error)
+    console.log(error)
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // ...
+  });;
 }

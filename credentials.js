@@ -11,6 +11,7 @@
   };
   firebase.initializeApp(config);
    
+  var news= {apiKey: '5573b7a235654d248bf3d502bd3417e6'}
   /**
    * initApp handles setting up the Firebase context and registering
    * callbacks for the auth status.
@@ -25,14 +26,29 @@
    *
    * When signed in, we also authenticate to the Firebase Realtime Database.
    */
+  let leftDeck
+  let rightDeck
   function initApp() {
-    // Listen for auth state changes.
-    // [START authstatelistener]
-    console.log('inside credentials initApp')
 
+    console.log('inside credentials initApp')
+    let keywords= []
+    chrome.storage.local.get(['keywords'], (result) => {
+      console.log(result.keywords)
+      keywords= result.keywords
+    })
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
+        console.log('here')
+        if(keywords && keywords.length > 0){
+          const newsQueryParam = keywords.toString().replace(',', ' ')
+          getLeftKeywordArticles(newsQueryParam)
+          getRightKeywordArticles(newsQueryParam)
+        }else{
+        getStandardRightArticles()
+        getStandardLeftArticles()
+        }
         // User is signed in.
+        console.log(user)
         var displayName = user.displayName;
         var email = user.email;
         var emailVerified = user.emailVerified;
@@ -41,40 +57,24 @@
         var uid = user.uid;
         var providerData = user.providerData;
         // [START_EXCLUDE]
-        document.getElementsByClassName('login').textContent = 'Sign out'
-        document.getElementById('quickstart-button').textContent = 'Sign out';
+        //document.getElementsByClassName('login').textContent = 'Sign out'
+        document.getElementById('hello-user').textContent = 'hello '+ email;
+        document.getElementById('hello-user').addEventListener('mouseover',()=>{
+          //shuffleDeck(leftDeck, rightDeck)
+        })
         document.getElementById('quickstart-sign-in-status').textContent = 'Signed in';
         document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  ');
         // [END_EXCLUDE]
       } else {
-        chrome.runtime.sendMessage({type: 'unauthorizedUser', opts: null }, (response) => {
-          console.log('before send ')
-          console.log(response)
-          if(response == 'success') {
-            console.log(response)
-            }
-          }
-        )
-        // Let's try to get a Google auth token programmatically.
-        // [START_EXCLUDE]
+        window.open('https://9drft.codesandbox.io/login')
         document.getElementById('quickstart-button').textContent = 'Sign-in';
         document.getElementById('quickstart-sign-in-status').textContent = 'Signed out';
         document.getElementById('quickstart-account-details').textContent = 'null';
-        // [END_EXCLUDE]
+      
       }
-      document.getElementById('quickstart-button').disabled = false;
-      document.getElementById('Sign-Up').addEventListener('click', function(){
-        window.location= './sign-up.html'
-      })
     });
-    // [END authstatelistener]
+    };
   
-    document.getElementById('quickstart-button').addEventListener('click', function(){
-      const email = document.getElementById('username').value
-      const password = document.getElementById('password').value
-      emailPassLogin(email, password)
-    });
-  }
   
   /**
    * Start the auth flow and authorizes to Firebase.
@@ -104,6 +104,17 @@
     });
   }
   
+
+  chrome.runtime.onMessage.addListener(async(msg, sender, response) => {
+      switch (msg.type){
+        case 'keywordsDetected':
+          alert('in credentials.js', msg.opts)
+          response('in credentials.js')
+          break;
+        default:
+          response('default case')
+        break;
+  }})
   /**
    * Starts the sign-in process.
    */
@@ -147,8 +158,115 @@
   })
     
   }
+
+  function getStandardLeftArticles(index){
+  let xmlHttp = new XMLHttpRequest();
+  let theUrl ='https://newsapi.org/v2/top-headlines?sources=abc-news&apiKey='+news.apiKey
+    xmlHttp.onreadystatechange = function() {
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+        console.log(xmlHttp)
+        var leftArr = JSON.parse(this.responseText);
+        console.log(leftArr)
+        createAndHandleArticleCards(leftArr, index,'left');
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+function createAndHandleArticleCards(arr, index= 0, side) {
+  console.log(arr)
   
-  window.onload = function() {
-    initApp();
-    console.log('credentials on load')
+  var i;
+  const arrayOfArticleCards= []
+  for(i = 0; i < arr.articles.length; i++) {
+    let cardContainer= document.createElement('div')
+    cardContainer.setAttribute('id', 'left')
+    let cardLink = document.createElement('a')
+    cardLink.setAttribute('href', arr.articles[i].url)
+    let cardImage = document.createElement("img")
+    cardImage.setAttribute('src', arr.articles[i].urlToImage)
+    let cardHeadline = document.createElement('h6')
+    cardHeadline.innerText = arr.articles[i].title
+    let cardAuthor = document.createElement('h7')
+    cardAuthor.innerText = arr.articles[i].author
+    let cardSource = document.createElement('h7')
+    cardSource.innerHTML = arr.articles[i].source.name
+    cardLink.append(cardContainer)
+    cardContainer.append(cardImage)
+    cardContainer.append(cardHeadline)
+    cardContainer.append(cardAuthor)
+    cardContainer.append(cardSource)
+    cardLink.addEventListener('click', ()=> window.open(cardLink.getAttribute('href')))
+    arrayOfArticleCards.push(cardLink)
+    console.log(cardContainer)
   }
+  console.log(side)
+  var item = document.getElementById(side).childNodes[0]
+  document.getElementById(side).replaceChild(arrayOfArticleCards[index], item);
+  switch (side) {
+    case 'right':
+      rightDeck = arrayOfArticleCards
+      break;
+    case 'left':
+      leftDeck = arrayOfArticleCards 
+      break;
+    default:
+    break;
+  }
+}
+function getStandardRightArticles(index){
+  let xmlHttp = new XMLHttpRequest();
+  let theUrl ='https://newsapi.org/v2/top-headlines?sources=fox-news&apiKey='+news.apiKey
+    xmlHttp.onreadystatechange = function() {
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+        console.log(xmlHttp)
+        var rightArr = JSON.parse(this.responseText);
+        console.log(rightArr)
+        createAndHandleArticleCards(rightArr, index,'right');
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+window.onload = function() {
+  initApp();
+  console.log('credentials on load')
+}
+
+function shuffleDeck(leftDeck, rightDeck){
+  console.log(leftDeck)
+  console.log(rightDeck)
+  const index= Math.floor(Math.random()*10) + 1
+  var leftNode = document.getElementById('left').childNodes[0]
+  document.getElementById('left').replaceChild(leftDeck[index], leftNode);
+  var rightNode = document.getElementById('right').childNodes[0]
+  document.getElementById('right').replaceChild(rightDeck[index], rightNode);
+}
+
+function getLeftKeywordArticles(query, index){
+  let xmlHttp = new XMLHttpRequest();
+  let theUrl ='https://newsapi.org/v2/top-headlines?sources=cnn&q='+ query+ '&apiKey='+news.apiKey
+    xmlHttp.onreadystatechange = function() {
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+        console.log(xmlHttp)
+        var leftKeywordArticles = JSON.parse(this.responseText);
+        console.log(leftKeywordArticles)
+        createAndHandleArticleCards(leftKeywordArticles, index,'left');
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+
+}
+
+function getRightKeywordArticles(query, index){
+  let xmlHttp = new XMLHttpRequest();
+  let theUrl ='https://newsapi.org/v2/top-headlines?sources=fox-news&q='+ query+ '&apiKey='+news.apiKey
+    xmlHttp.onreadystatechange = function() {
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+        console.log(xmlHttp)
+        var rightKeywordArticles = JSON.parse(this.responseText);
+        console.log(rightKeywordArticles)
+        createAndHandleArticleCards(rightKeywordArticles, index,'right');
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+
+}
